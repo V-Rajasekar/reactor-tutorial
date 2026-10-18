@@ -23,8 +23,7 @@ public class FluxAndMonoGeneratorService {
         Flux.fromIterable(List.of("alex", "ben", "martin"))
             .map(String::toUpperCase)
             .filter(s -> s.length() > strLength)
-            .map(s -> s.length() + "-" + s)
-            .log();
+            .map(s -> s.length() + "-" + s)            .log();
     }
 
     public static  Flux<String> nameFlux_flatMap(int strLength) {
@@ -33,7 +32,7 @@ public class FluxAndMonoGeneratorService {
             .filter(s -> s.length() > strLength)
             .flatMap(FluxAndMonoGeneratorService::splitStringToChar).log();
 
-        System.out.printf("Result FlatMap: " + result);
+        System.out.printf("=============>Result FlatMap: " + result);
         return result;
 
     }
@@ -59,6 +58,12 @@ public class FluxAndMonoGeneratorService {
         System.out.printf("Result FlatMap: " + result);
         return result;
 
+    }
+
+    public static Flux<String> nameMono_flatMapMany(String name) {
+        return Mono.just(name)
+                   .map(String::toUpperCase)
+                   .flatMapMany(FluxAndMonoGeneratorService::splitString_withDelay).log(); //Flux <of A, L, E, X>
     }
 
     private static Flux<String> splitStringToChar(String s) {

@@ -7,17 +7,24 @@ import static com.learnreactiveprogramming.service.FluxAndMonoGeneratorService.e
 import static com.learnreactiveprogramming.service.FluxAndMonoGeneratorService.nameFlux_concatMap_Async;
 import static com.learnreactiveprogramming.service.FluxAndMonoGeneratorService.nameFlux_flatMap;
 import static com.learnreactiveprogramming.service.FluxAndMonoGeneratorService.nameFlux_flatMap_Async;
-
+import static com.learnreactiveprogramming.service.FluxAndMonoGeneratorService.nameMono_flatMapMany;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 public class FluxAndMonoGeneratorServiceTest {
 
     @Test
     void testNameFlatMap() {
-       var namesFlux = nameFlux_flatMap(3);
-        StepVerifier.create(namesFlux)
-                .expectNext("A", "L", "E", "X", "M", "A","T", "T")
+        Flux<String> names = Flux.fromIterable(List.of("alex", "ben", "martin"))
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > 3).map(s-> s)
+              //  .map(s -> s.length() + "-" + s);
+         .flatMap(s -> Flux.fromArray(s.split(""))).log();
+        StepVerifier.create(names)
+                .expectNext("A", "L", "E", "X", "M", "A","R", "T", "I","N")
                 .verifyComplete();
     }
 
@@ -27,6 +34,13 @@ public class FluxAndMonoGeneratorServiceTest {
         StepVerifier.create(namesFlux)
                     //.expectNext("A", "L", "E", "X", "M", "A","T", "T")
                 .expectNextCount(8)
+                    .verifyComplete();
+    }
+
+    @Test
+    void testnameMono_flatMapMany() {
+        Flux<String> input = nameMono_flatMapMany("alex");
+        StepVerifier.create(input).expectNext("A","L","E","X") // Returning Flux<String>
                     .verifyComplete();
     }
 
